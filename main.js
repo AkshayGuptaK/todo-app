@@ -1,9 +1,7 @@
 // Create needed constants from elements
 const nameInput = document.getElementById('inputTaskName')
-const commentInput = document.getElementById('inputTaskComment')
+const descriptionInput = document.getElementById('inputTaskDescription')
 const form = document.querySelector('form')
-
-let db
 
 // Button Constructor
 function LabelledButton (label, onclickFunc, cls) {
@@ -15,20 +13,23 @@ function LabelledButton (label, onclickFunc, cls) {
 
 function displayTask (cursor) {
     let task = document.createElement("div")
+    task.className = "task"
     task.appendChild(document.createTextNode(cursor.value.name))
     task.appendChild(new LabelledButton('delete', deleteTask, 'deleteBtn').btn)
     task.appendChild(new LabelledButton('edit', editTask, 'editBtn').btn)
-    task.appendChild(new LabelledButton('comment', commentTask, 'commentBtn').btn)
+    task.appendChild(new LabelledButton('describe', describeTask, 'describeBtn').btn)
     task.appendChild(new LabelledButton('completed', completeTask, 'completeBtn').btn)
-    task.appendChild(document.createTextNode(cursor.value.comment))
+    task.appendChild(document.createTextNode(cursor.value.description))
     let main = document.querySelector('main')
     main.insertBefore(task, document.getElementById('inputDivider'))
 }
 
 function deleteTask () {}
 function editTask () {}
-function commentTask () {}
+function describeTask () {}
 function completeTask () {}
+
+let db
 
 window.onload = function () {
     let request = window.indexedDB.open('tasks', 1)
@@ -45,7 +46,7 @@ window.onload = function () {
         let db = eve.target.result
         let objectStore = db.createObjectStore('tasks', { keyPath: 'id', autoIncrement:true })
         objectStore.createIndex('name', 'name', { unique: false })
-        objectStore.createIndex('comment', 'comment', { unique: false })
+        objectStore.createIndex('description', 'description', { unique: false })
         objectStore.createIndex('completed', 'completed', { unique: false })
   
         console.log('Database setup complete') 
@@ -55,13 +56,13 @@ window.onload = function () {
 
     function addTask (eve) {
         eve.preventDefault()
-        let newTask = { name: nameInput.value, comment: commentInput.value, completed: false }
+        let newTask = { name: nameInput.value, description: descriptionInput.value, completed: false }
         let transaction = db.transaction(['tasks'], 'readwrite')
         let objectStore = transaction.objectStore('tasks')
         var request = objectStore.add(newTask)
         request.onsuccess = function () {
             nameInput.value = ''
-            commentInput.value = ''
+            descriptionInput.value = ''
         }
     
         transaction.oncomplete = function() {
@@ -74,10 +75,17 @@ window.onload = function () {
         }
     }
 
+    function clearTask (task, index, nodelist) { // remove a task from display
+        let main = document.querySelector('main')
+        main.removeChild(task)
+    }
+
     function displayAllTasks () {
 
-        // need to empty out all displayed tasks
-        // i.e. delete all divs prior to input divider
+        // first clear away currently displayed tasks
+        let tasks = document.querySelectorAll('div.task')
+        tasks.forEach(clearTask)
+
 
         let objectStore = db.transaction('tasks').objectStore('tasks')
         objectStore.openCursor().onsuccess = function(e) {
@@ -87,7 +95,7 @@ window.onload = function () {
                 displayTask(cursor)
                 cursor.continue()
             } else {
-              if(false) { // change to if no tasks
+              if(document.querySelectorAll('div.task').length === 0) { // needs testing
                 let main = document.querySelector('main') 
                 main.insertBefore(document.createTextNode('No tasks stored.'), document.getElementById('inputDivider'))
               }
