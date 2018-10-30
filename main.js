@@ -1,7 +1,7 @@
-// Create needed constants
-const nameInput = document.querySelector('#name');
-const commentInput = document.querySelector('#comment');
-const form = document.querySelector('form');
+// Create needed constants from elements
+const nameInput = document.getElementById('inputTaskName')
+const commentInput = document.getElementById('inputTaskComment')
+const form = document.querySelector('form')
 
 let db
 
@@ -18,10 +18,11 @@ function displayTask (cursor) {
     task.appendChild(document.createTextNode(cursor.value.name))
     task.appendChild(new LabelledButton('delete', deleteTask, 'deleteBtn').btn)
     task.appendChild(new LabelledButton('edit', editTask, 'editBtn').btn)
-    task.appendChild(new LabelledButton('comment', commentTask, 'commentBtn'))
-    task.appendChild(new LabelledButton('completed', completeTask, 'completeBtn'))    
+    task.appendChild(new LabelledButton('comment', commentTask, 'commentBtn').btn)
+    task.appendChild(new LabelledButton('completed', completeTask, 'completeBtn').btn)
     task.appendChild(document.createTextNode(cursor.value.comment))
-    document.body.insertBefore(task, document.getElementById('inputDivider'))
+    let main = document.querySelector('main')
+    main.insertBefore(task, document.getElementById('inputDivider'))
 }
 
 function deleteTask () {}
@@ -30,7 +31,7 @@ function commentTask () {}
 function completeTask () {}
 
 window.onload = function () {
-    let request = window.indexedDB.open('notes', 1)
+    let request = window.indexedDB.open('tasks', 1)
     request.onerror = function () {
         console.log('Database failed to load')
     }
@@ -40,8 +41,8 @@ window.onload = function () {
         displayAllTasks()
     }
 
-    request.onupdateneeded = function(e) {
-        let db = e.target.result
+    request.onupgradeneeded = function(eve) {
+        let db = eve.target.result
         let objectStore = db.createObjectStore('tasks', { keyPath: 'id', autoIncrement:true })
         objectStore.createIndex('name', 'name', { unique: false })
         objectStore.createIndex('comment', 'comment', { unique: false })
@@ -52,8 +53,8 @@ window.onload = function () {
 
     form.onsubmit = addTask
 
-    function addTask (e) {
-        e.preventDefault()
+    function addTask (eve) {
+        eve.preventDefault()
         let newTask = { name: nameInput.value, comment: commentInput.value, completed: false }
         let transaction = db.transaction(['tasks'], 'readwrite')
         let objectStore = transaction.objectStore('tasks')
@@ -74,8 +75,10 @@ window.onload = function () {
     }
 
     function displayAllTasks () {
+
         // need to empty out all displayed tasks
-    
+        // i.e. delete all divs prior to input divider
+
         let objectStore = db.transaction('tasks').objectStore('tasks')
         objectStore.openCursor().onsuccess = function(e) {
             let cursor = e.target.result
@@ -85,7 +88,8 @@ window.onload = function () {
                 cursor.continue()
             } else {
               if(false) { // change to if no tasks
-                document.body.insertBefore(document.createTextNode('No tasks stored.'), document.getElementById('inputDivider'))
+                let main = document.querySelector('main') 
+                main.insertBefore(document.createTextNode('No tasks stored.'), document.getElementById('inputDivider'))
               }
               console.log('Tasks all displayed')
             }
