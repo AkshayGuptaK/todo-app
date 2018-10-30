@@ -11,24 +11,6 @@ function LabelledButton (label, onclickFunc, cls) {
     this.btn.className = cls
 }
 
-function displayTask (cursor) {
-    let task = document.createElement("div")
-    task.className = "task"
-    task.appendChild(document.createTextNode(cursor.value.name))
-    task.appendChild(new LabelledButton('delete', deleteTask, 'deleteBtn').btn)
-    task.appendChild(new LabelledButton('edit', editTask, 'editBtn').btn)
-    task.appendChild(new LabelledButton('describe', describeTask, 'describeBtn').btn)
-    task.appendChild(new LabelledButton('completed', completeTask, 'completeBtn').btn)
-    task.appendChild(document.createTextNode(cursor.value.description))
-    let main = document.querySelector('main')
-    main.insertBefore(task, document.getElementById('inputDivider'))
-}
-
-function deleteTask () {}
-function editTask () {}
-function describeTask () {}
-function completeTask () {}
-
 let db
 
 window.onload = function () {
@@ -37,7 +19,7 @@ window.onload = function () {
         console.log('Database failed to load')
     }
     request.onsuccess = function () {
-        console.log('Database loaded successfully')
+        console.log('Database successfully loaded')
         db = request.result
         displayAllTasks()
     }
@@ -60,25 +42,63 @@ window.onload = function () {
         let transaction = db.transaction(['tasks'], 'readwrite')
         let objectStore = transaction.objectStore('tasks')
         var request = objectStore.add(newTask)
-        request.onsuccess = function () {
+        request.onsuccess = function () { // onsuccess fires when request is queued, could consider moving this to inside oncomplete
             nameInput.value = ''
             descriptionInput.value = ''
         }
     
-        transaction.oncomplete = function() {
-            console.log('Transaction completed: database modification finished.')
-            displayAllTasks()
+        transaction.oncomplete = function() { // oncomplete fires when transaction is successful
+            console.log('Database successfully modified.')
+            // if no tasks displayed, get rid of text node
+            displayTask(newTask.name, newTask.description, false, request.result) // result contains new task id value
         }
         
         transaction.onerror = function() {
-            console.log('Transaction not opened due to error')
+            console.log('Database modification failed.')
         }
     }
+
+    function deleteTask (eve) {
+        let main = document.querySelector('main')
+        let taskId = Number(eve.target.parentNode.getAttribute('task-id'))
+        let transaction = db.transaction(['tasks'], 'readwrite')
+        let objectStore = transaction.objectStore('tasks')
+        let request = objectStore.delete(taskId)
+    
+        transaction.oncomplete = function() {
+            main.removeChild(eve.target.parentNode)
+            console.log('Task ' + taskId + ' deleted')
+      
+            if(document.querySelectorAll('div.task').length === 0) {
+                main.insertBefore(document.createTextNode('No tasks stored.'), document.getElementById('inputDivider'))
+            }
+        }
+    }
+    
+    function editTask () {}
+    function describeTask () {}
+    function completeTask () {}    
 
     function clearTask (task, index, nodelist) { // remove a task from display
         let main = document.querySelector('main')
         main.removeChild(task)
     }
+
+    // Adds a task to the display given its parameters
+    function displayTask (name, description, completed, id) {
+        let task = document.createElement("div")
+        task.className = "task"
+        task.setAttribute('task-id', id)
+
+        task.appendChild(document.createTextNode(name))
+        task.appendChild(new LabelledButton('delete', deleteTask, 'deleteBtn').btn)
+        task.appendChild(new LabelledButton('edit', editTask, 'editBtn').btn)
+        task.appendChild(new LabelledButton('describe', describeTask, 'describeBtn').btn)
+        task.appendChild(new LabelledButton('completed', completeTask, 'completeBtn').btn)
+        task.appendChild(document.createTextNode(description))
+        let main = document.querySelector('main')
+        main.insertBefore(task, document.getElementById('inputDivider'))
+    }    
 
     function displayAllTasks () {
 
@@ -92,7 +112,7 @@ window.onload = function () {
             let cursor = e.target.result
       
             if(cursor) {
-                displayTask(cursor)
+                displayTask(cursor.value.name, cursor.value.description, cursor.value.completed, cursor.value.id)
                 cursor.continue()
             } else {
               if(document.querySelectorAll('div.task').length === 0) { // needs testing
