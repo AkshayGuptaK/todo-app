@@ -1,7 +1,12 @@
-// Create needed constants from elements
+// Create necessary references to elements
+const main = document.querySelector('main')
+const form = document.querySelector('form')
 const nameInput = document.getElementById('inputTaskName')
 const descriptionInput = document.getElementById('inputTaskDescription')
-const form = document.querySelector('form')
+const inputDivider = document.getElementById('inputDivider')
+const completeDivider = document.getElementById('completeDivider')
+
+// can use this instead of eve.target?
 
 // Button Constructor
 function LabelledButton (label, onclickFunc, cls) {
@@ -42,15 +47,13 @@ window.onload = function () {
         let transaction = db.transaction(['tasks'], 'readwrite')
         let objectStore = transaction.objectStore('tasks')
         var request = objectStore.add(newTask)
-        request.onsuccess = function () { // onsuccess fires when request is queued, could consider moving this to inside oncomplete
+    
+        transaction.oncomplete = function() {
             nameInput.value = ''
             descriptionInput.value = ''
-        }
-    
-        transaction.oncomplete = function() { // oncomplete fires when transaction is successful
             console.log('Database successfully modified.')
             // if no tasks displayed, get rid of text node
-            displayTask(newTask.name, newTask.description, false, request.result) // result contains new task id value
+            displayTask(newTask.name, newTask.description, false, request.result) // request.result contains new task id value
         }
         
         transaction.onerror = function() {
@@ -59,7 +62,6 @@ window.onload = function () {
     }
 
     function deleteTask (eve) {
-        let main = document.querySelector('main')
         let taskId = Number(eve.target.parentNode.getAttribute('task-id'))
         let transaction = db.transaction(['tasks'], 'readwrite')
         let objectStore = transaction.objectStore('tasks')
@@ -70,17 +72,49 @@ window.onload = function () {
             console.log('Task ' + taskId + ' deleted')
       
             if(document.querySelectorAll('div.task').length === 0) {
-                main.insertBefore(document.createTextNode('No tasks stored.'), document.getElementById('inputDivider'))
+                main.insertBefore(document.createTextNode('No tasks stored.'), inputDivider)
             }
         }
     }
     
     function editTask () {}
     function describeTask () {}
-    function completeTask () {}    
+
+    function setCompleted (task, completed) {
+        let taskId = Number(task.getAttribute('task-id'))
+        let transaction = db.transaction(['tasks'], 'readwrite')
+        let objectStore = transaction.objectStore('tasks')
+        let request = objectStore.get(taskId)
+
+        request.onsuccess = function (eve) {
+            let data = eve.target.result
+            data.completed = completed
+            let requestUpdate = objectStore.put(data)
+            requestUpdate.onerror = function() {
+                console.log('Database modification failed.')
+            }
+            requestUpdate.onsuccess = function() {
+                console.log('Database successfully modified.')
+                if (completed) {
+                    main.insertBefore(task, null) // should it be inserted into place per task id order?
+                } else {
+                    main.insertBefore(task, inputDivider) // and this?
+                }
+            }
+        }
+    }
+
+    function completeTask (eve) {
+        let task = eve.target.parentNode
+        setCompleted(task, true)
+    }
+    
+    function incompleteTask (eve) {
+        let task = eve.target.parentNode
+        setCompleted(task, false)
+    }
 
     function clearTask (task, index, nodelist) { // remove a task from display
-        let main = document.querySelector('main')
         main.removeChild(task)
     }
 
@@ -96,28 +130,27 @@ window.onload = function () {
         task.appendChild(new LabelledButton('describe', describeTask, 'describeBtn').btn)
         task.appendChild(new LabelledButton('completed', completeTask, 'completeBtn').btn)
         task.appendChild(document.createTextNode(description))
-        let main = document.querySelector('main')
-        main.insertBefore(task, document.getElementById('inputDivider'))
+        main.insertBefore(task, inputDivider)
     }    
 
     function displayAllTasks () {
 
         // first clear away currently displayed tasks
         let tasks = document.querySelectorAll('div.task')
-        tasks.forEach(clearTask)
-
+        tasks.forEach(clearTask) // use anonymous function?
 
         let objectStore = db.transaction('tasks').objectStore('tasks')
-        objectStore.openCursor().onsuccess = function(e) {
-            let cursor = e.target.result
+        let request = objectStore.openCursor()
+        
+        request.onsuccess = function (eve) {
+            let cursor = eve.target.result
       
             if(cursor) {
                 displayTask(cursor.value.name, cursor.value.description, cursor.value.completed, cursor.value.id)
                 cursor.continue()
             } else {
-              if(document.querySelectorAll('div.task').length === 0) { // needs testing
-                let main = document.querySelector('main') 
-                main.insertBefore(document.createTextNode('No tasks stored.'), document.getElementById('inputDivider'))
+              if(document.querySelectorAll('div.task').length === 0) {
+                main.insertBefore(document.createTextNode('No tasks stored.'), inputDivider)
               }
               console.log('Tasks all displayed')
             }
