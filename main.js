@@ -8,12 +8,20 @@ const completeDivider = document.getElementById('completeDivider')
 
 // can use this instead of eve.target?
 
-// Button Constructor
-function LabelledButton (label, onclickFunc, cls) {
-    this.btn = document.createElement('button')
-    this.btn.appendChild(document.createTextNode(label))
-    this.btn.onclick = onclickFunc
-    this.btn.className = cls
+// Basic helper functions
+function createMessage (cls, message) {
+    let msg = document.createElement('p')
+    msg.className = cls
+    msg.innerHTML = message
+    return msg
+}
+
+function createButton (label, onclickFunc, cls) {
+    let button = document.createElement('button')
+    button.appendChild(document.createTextNode(label))
+    button.onclick = onclickFunc
+    button.className = cls
+    return button
 }
 
 let db
@@ -52,7 +60,9 @@ window.onload = function () {
             nameInput.value = ''
             descriptionInput.value = ''
             console.log('Database successfully modified.')
-            // if no tasks displayed, get rid of text node
+            if(document.querySelectorAll('div.task').length === 0) { // if no tasks displayed, get rid of text node
+                main.removeChild(document.querySelector('p.emptymsg'))
+            }
             displayTask(newTask.name, newTask.description, false, request.result) // request.result contains new task id value
         }
         
@@ -72,7 +82,8 @@ window.onload = function () {
             console.log('Task ' + taskId + ' deleted')
       
             if(document.querySelectorAll('div.task').length === 0) {
-                main.insertBefore(document.createTextNode('No tasks stored.'), inputDivider)
+                let msg = createMessage('emptymsg', 'Twiddling my thumbs, nothing to do.')
+                main.insertBefore(msg, inputDivider)
             }
         }
     }
@@ -96,8 +107,10 @@ window.onload = function () {
             requestUpdate.onsuccess = function() {
                 console.log('Database successfully modified.')
                 if (completed) {
+                    task.replaceChild(createButton('not completed', incompleteTask, 'incompleteBtn'), task.querySelector('button.completeBtn')) // change to incomplete button
                     main.insertBefore(task, null) // should it be inserted into place per task id order?
                 } else {
+                    task.replaceChild(createButton('completed', completeTask, 'completeBtn'), task.querySelector('button.incompleteBtn')) // change to complete button
                     main.insertBefore(task, inputDivider) // and this?
                 }
             }
@@ -124,14 +137,20 @@ window.onload = function () {
         task.className = "task"
         task.setAttribute('task-id', id)
 
-        task.appendChild(document.createTextNode(name))
-        task.appendChild(new LabelledButton('delete', deleteTask, 'deleteBtn').btn)
-        task.appendChild(new LabelledButton('edit', editTask, 'editBtn').btn)
-        task.appendChild(new LabelledButton('describe', describeTask, 'describeBtn').btn)
-        task.appendChild(new LabelledButton('completed', completeTask, 'completeBtn').btn)
-        task.appendChild(document.createTextNode(description))
+        task.appendChild(createMessage('taskname', name))
+        task.appendChild(createButton('delete', deleteTask, 'deleteBtn'))
+        task.appendChild(createButton('edit', editTask, 'editBtn'))
+        task.appendChild(createButton('describe', describeTask, 'describeBtn'))
+
+        if (completed) {
+            task.appendChild(createButton('not completed', incompleteTask, 'incompleteBtn'))
+        } else {
+            task.appendChild(createButton('completed', completeTask, 'completeBtn'))
+        }
+
+        task.appendChild(createMessage('taskdesc', description))
         main.insertBefore(task, inputDivider)
-    }    
+    }
 
     function displayAllTasks () {
 
@@ -149,9 +168,10 @@ window.onload = function () {
                 displayTask(cursor.value.name, cursor.value.description, cursor.value.completed, cursor.value.id)
                 cursor.continue()
             } else {
-              if(document.querySelectorAll('div.task').length === 0) {
-                main.insertBefore(document.createTextNode('No tasks stored.'), inputDivider)
-              }
+                if(document.querySelectorAll('div.task').length === 0) {
+                    let msg = createMessage('emptymsg', 'Twiddling my thumbs, nothing to do.')
+                    main.insertBefore(msg, inputDivider)
+                }
               console.log('Tasks all displayed')
             }
         }
