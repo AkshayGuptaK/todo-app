@@ -102,7 +102,12 @@ window.onload = function () {
             task.appendChild(createButton('completed', completeTask, 'completeBtn'))
         }
         task.appendChild(createMessage('taskdesc', description))
-        main.insertBefore(task, inputDivider) // needs to change display point for completed tasks
+        if (completed) {
+            main.insertBefore(task, null)
+        } else {
+            main.insertBefore(task, completeDivider)
+        }
+        task.appendChild(createMessage('taskdesc', description))
     }
     
     function displayAllTasks () {
@@ -123,7 +128,7 @@ window.onload = function () {
             } else {
                 if(document.querySelectorAll('div.task').length === 0) {
                     let msg = createMessage('emptymsg', 'Twiddling my thumbs, nothing to do.')
-                    main.insertBefore(msg, inputDivider)
+                    main.insertBefore(msg, completeDivider)
                 }
               console.log('Tasks all displayed')
             }
@@ -164,7 +169,7 @@ window.onload = function () {
       
             if(document.querySelectorAll('div.task').length === 0) {
                 let msg = createMessage('emptymsg', 'Twiddling my thumbs, nothing to do.')
-                main.insertBefore(msg, inputDivider)
+                main.insertBefore(msg, completeDivider)
             }
         }
     }
@@ -239,7 +244,7 @@ window.onload = function () {
                     main.insertBefore(task, null) // should it be inserted into place per task id order?
                 } else {
                     task.replaceChild(createButton('completed', completeTask, 'completeBtn'), task.querySelector('button.incompleteBtn')) // change to complete button
-                    main.insertBefore(task, inputDivider) // and this?
+                    main.insertBefore(task, completeDivider) // and this?
                 }
             }
         }
