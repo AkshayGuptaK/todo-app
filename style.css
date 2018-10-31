@@ -1,0 +1,42 @@
+html {
+    background-color: beige;
+    background: url('images/background.jpg') no-repeat fixed;
+    background-size: 100% 100%;
+    font-size: 12px;
+}
+
+h1, h2, .emptymsg {
+    text-align: center;
+}
+
+form {
+    margin: 20px;
+}
+
+#inputTaskName {
+    width: 90%;
+}
+
+#inputTaskDescription {
+    display: block;
+    width: 95%;
+}
+
+.task, .taskToDo {
+    margin: 20px;
+}
+
+.taskname {
+    display: inline;
+}
+
+.inputDescEdit {
+    display: block;
+}
+
+#inputDivider, #completeDivider {
+    margin: auto;
+    width: 80%;
+    border-top: solid grey 1px;
+    padding-top: 10px;
+}

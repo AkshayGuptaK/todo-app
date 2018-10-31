@@ -31,14 +31,24 @@ function createInputField (cls, init_value) { // creates an input field marked a
     return input
 }
 
-function clearTask (task, index, nodelist) { // remove a given task from display
-    main.removeChild(task)
-}
-
 function getTaskInfo (eve) { // get associated task div and its id from triggering event
     let task = eve.target.parentNode
     let taskId = Number(task.getAttribute('task-id'))
     return [task, taskId]
+}
+
+function checkAddEmptyMessage () { // check if no pending tasks and if so add message
+    if(document.querySelectorAll('div.taskToDo').length === 0) {
+        let msg = createMessage('emptymsg', 'Twiddling my thumbs, nothing to do.')
+        main.insertBefore(msg, completeDivider)
+    }
+}    
+
+function checkDelEmptyMessage () { // if empty message exists, remove it
+    let msg = document.querySelector('p.emptymsg')
+    if ( msg !== null ) {
+        main.removeChild(msg)
+    }
 }
 
 // Database helper functions
@@ -49,13 +59,13 @@ function openRWTransaction (db) { // opens a read-write transaction with db
     return [transaction, objectStore]
 }
 
-function getTaskData (db, taskId) {
+function getTaskData (db, taskId) { // retrieves data corresponding to task id
     let objectStore = openRWTransaction(db)[1]
     let request = objectStore.get(taskId)
     return [objectStore, request]
 }
 
-function storeTaskData (eve, objectStore, field, value) {
+function storeTaskData (eve, objectStore, field, value) { // updates task data with one value alteration
     let data = eve.target.result
     data[field] = value
     let request = objectStore.put(data)
@@ -90,15 +100,16 @@ window.onload = function () {
     // Adds a task to the display given its parameters
     function displayTask (name, description, completed, id) {
         let task = document.createElement("div")
-        task.className = "task"
         task.setAttribute('task-id', id)
         task.appendChild(createMessage('taskname', name))
         task.appendChild(createButton('delete', deleteTask, 'deleteBtn'))
         task.appendChild(createButton('edit', editTask, 'editBtn'))
         task.appendChild(createButton('describe', describeTask, 'describeBtn'))
         if (completed) {
+            task.className = "task"
             task.appendChild(createButton('not completed', incompleteTask, 'incompleteBtn'))
         } else {
+            task.className = "taskToDo"
             task.appendChild(createButton('completed', completeTask, 'completeBtn'))
         }
         task.appendChild(createMessage('taskdesc', description))
@@ -106,32 +117,21 @@ window.onload = function () {
             main.insertBefore(task, null)
         } else {
             main.insertBefore(task, completeDivider)
-        }
-        task.appendChild(createMessage('taskdesc', description))
+        } // clean this up
     }
     
     function displayAllTasks () {
-    
-        // first clear away currently displayed tasks
-        let tasks = document.querySelectorAll('div.task')
-        tasks.forEach(clearTask)
-    
         let objectStore = db.transaction('tasks').objectStore('tasks')
         let request = objectStore.openCursor()
         
         request.onsuccess = function (eve) {
-            let cursor = eve.target.result
-      
+            let cursor = eve.target.result      
             if(cursor) {
                 displayTask(cursor.value.name, cursor.value.description, cursor.value.completed, cursor.value.id)
                 cursor.continue()
-            } else {
-                if(document.querySelectorAll('div.task').length === 0) {
-                    let msg = createMessage('emptymsg', 'Twiddling my thumbs, nothing to do.')
-                    main.insertBefore(msg, completeDivider)
-                }
-              console.log('Tasks all displayed')
-            }
+            }              
+            checkAddEmptyMessage()
+            console.log('Tasks all displayed')
         }
     }
 
@@ -145,9 +145,7 @@ window.onload = function () {
             nameInput.value = ''
             descriptionInput.value = ''
             console.log('Database successfully modified.')
-            if(document.querySelectorAll('div.task').length === 0) { // if no tasks displayed, get rid of text node
-                main.removeChild(document.querySelector('p.emptymsg'))
-            }
+            checkDelEmptyMessage()
             displayTask(newTask.name, newTask.description, false, request.result) // request.result contains new task id value
         }
         
@@ -165,12 +163,8 @@ window.onload = function () {
     
         transaction.oncomplete = function() {
             main.removeChild(eve.target.parentNode)
-            console.log('Task ' + taskId + ' deleted')
-      
-            if(document.querySelectorAll('div.task').length === 0) {
-                let msg = createMessage('emptymsg', 'Twiddling my thumbs, nothing to do.')
-                main.insertBefore(msg, completeDivider)
-            }
+            console.log('Task ' + taskId + ' deleted')      
+            checkAddEmptyMessage()
         }
     }
     
@@ -240,11 +234,15 @@ window.onload = function () {
             requestUpdate.onsuccess = function() {
                 console.log('Database successfully modified.')
                 if (completed) {
+                    task.className = "task"
                     task.replaceChild(createButton('not completed', incompleteTask, 'incompleteBtn'), task.querySelector('button.completeBtn')) // change to incomplete button
-                    main.insertBefore(task, null) // should it be inserted into place per task id order?
+                    main.insertBefore(task, null)
+                    checkAddEmptyMessage()
                 } else {
+                    checkDelEmptyMessage()
+                    task.className = "taskToDo"
                     task.replaceChild(createButton('completed', completeTask, 'completeBtn'), task.querySelector('button.incompleteBtn')) // change to complete button
-                    main.insertBefore(task, completeDivider) // and this?
+                    main.insertBefore(task, completeDivider)
                 }
             }
         }
