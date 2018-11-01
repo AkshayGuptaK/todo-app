@@ -12,83 +12,132 @@ h1, h2, .emptymsg {
     font-family: font89786;
 }
 
+h1 {
+    font-size: 3rem;
+}
+
+h2 {
+    font-size: 2rem;
+}
+
+.emptymsg {
+    font-size: 1.5rem;
+}
+
 form {
     margin: 20px;
+    display: table;
+    width: 100%;
 }
 
 #inputTaskName {
-    width: 90%;
+    display: table-cell;
+    vertical-align: middle;
+    font-size: 1.5rem;
+    width: 95%;
+    background-color: beige;
+    margin: 0px 5px 5px 0px;
 }
 
 #inputTaskDescription {
-    display: block;
-    width: 90%;
+    font-size: 1rem;
+    vertical-align: middle;
+    display: table-cell;
+    width: 95%;
+    background-color: beige;
+    margin-right: 5px;
 }
 
 .task, .taskToDo {
     margin: 20px;
+    display: grid;
+    grid-template-columns: 1fr 30px 30px;
+    grid-template-rows: 5fr 1fr 4fr;
+    grid-column-gap: 5px;
+    width: 95.4%;
+}
+
+.taskname, .taskdesc {
+    background-color: beige;
+    width: 99.5%;
+    min-width: 75px;
+    padding: 5px 0px 5px 5px;
 }
 
 .taskname {
-    display: inline-block;
-    width: 85%;
+    font-size: 1.5rem;
+    margin: 0px 0px 5px 0px;
+    grid-area: 1 / 1 / 3 / 2;
 }
 
 .taskdesc {
-    width: 85%;
-}
-
-.inputNameEdit {
-    width: 85%;
-}
-
-.inputDescEdit {
-    display: block;
-    width: 85%;
+    font-size: 1rem;
+    margin: 0px;
+    grid-area: 3 / 1 / 4 / 2;
 }
 
 #inputDivider, #completeDivider {
     margin: auto;
     width: 80%;
-    border-top: solid grey 1px;
     padding-top: 10px;
 }
 
-button {
-    padding: 10px;
+#inputDivider {
+    border-top: solid grey 1px;
+}
+
+#completeDivider {
+    border-bottom: solid grey 1px;
 }
 
 #addtask {
     background: url('images/add.png') no-repeat local;
     background-size: 100% 100%;
+    padding: 11px;
+    display: table-cell;
+    vertical-align: middle;
+    margin: 0px 0px 5px 0px;
 }
 
 .deleteBtn {
     background: url('images/delete.png') no-repeat local;
     background-size: 100% 100%;
+    grid-area: 2 / 3 / 4 / 4;
 }
 
 .editBtn {
     background: url('images/edit.png') no-repeat local;
     background-size: 100% 100%;
+    grid-area: 1 / 2 / 2 / 3;
 }
 
 .describeBtn {
     background: url('images/describe.png') no-repeat local;
     background-size: 100% 100%;
+    grid-area: 2 / 2 / 4 / 3;
 }
 
 .completeBtn {
     background: url('images/complete.png') no-repeat local;
     background-size: 100% 100%;
+    grid-area: 1 / 3 / 2 / 4;
 }
 
 .incompleteBtn {
     background: url('images/incomplete.png') no-repeat local;
     background-size: 100% 100%;
+    grid-area: 1 / 3 / 2 / 4;
 }
 
 .acceptNameEditBtn, .acceptDescEditBtn {
     background: url('images/apply-change.png') no-repeat local;
     background-size: 100% 100%;
+}
+
+.acceptNameEditBtn {
+    grid-area: 1 / 2 / 2 / 3;
+}
+
+.acceptDescEditBtn {
+    grid-area: 2 / 2 / 4 / 3;
 }

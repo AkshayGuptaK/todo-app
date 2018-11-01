@@ -31,6 +31,7 @@ function createInputField (cls, init_value) { // creates an input field marked a
     input.type = 'text'
     input.className = cls
     input.value = init_value
+    input.disabled = true
     return input
 }
 
@@ -105,7 +106,8 @@ window.onload = function () {
     function displayTask (name, description, completed, id) {
         let task = document.createElement("div")
         task.setAttribute('task-id', id)
-        task.appendChild(createMessage('taskname', name))
+        task.appendChild(createInputField('taskname', name))
+        task.appendChild(createInputField('taskdesc', description))
         task.appendChild(createButton(deleteTask, 'deleteBtn'))
         task.appendChild(createButton(editTask, 'editBtn'))
         task.appendChild(createButton(describeTask, 'describeBtn'))
@@ -118,7 +120,6 @@ window.onload = function () {
             task.appendChild(createButton(completeTask, 'completeBtn'))
             main.insertBefore(task, completeDivider)
         }
-        task.appendChild(createMessage('taskdesc', description))
     }
     
     function displayAllTasks () {
@@ -130,9 +131,10 @@ window.onload = function () {
             if(cursor) {
                 displayTask(cursor.value.name, cursor.value.description, cursor.value.completed, cursor.value.id)
                 cursor.continue()
-            }              
-            checkAddEmptyMessage()
-            console.log('Tasks all displayed')
+            } else {
+                checkAddEmptyMessage()
+                console.log('Tasks all displayed')        
+            }
         }
     }
 
@@ -177,26 +179,23 @@ window.onload = function () {
     
     function editTask (eve) {
         let task = eve.target.parentNode
-        let nameDisplay = task.querySelector('p.taskname') // existing display
+        task.querySelector('input.taskname').disabled = false
         modifyButton(task.querySelector('button.editBtn'), acceptNameEdit, 'acceptNameEditBtn')
-        let input = createInputField('inputNameEdit', nameDisplay.innerHTML)
-        task.replaceChild(input, nameDisplay) // change name text field to an input field with same value
     }
 
     function describeTask (eve) {
         let task = eve.target.parentNode
-        let descDisplay = task.querySelector('p.taskdesc') // existing display
+        task.querySelector('input.taskdesc').disabled = false
         modifyButton(task.querySelector('button.describeBtn'), acceptDescEdit, 'acceptDescEditBtn')
-        let input = createInputField('inputDescEdit', descDisplay.innerHTML)
-        task.replaceChild(input, descDisplay) // change name text field to an input field with same value
     }
 
     function acceptNameEdit (eve) {
         let [task, taskId] = getTaskInfo(eve)
-        let inputField = task.querySelector('input.inputNameEdit') // existing input
+        let inputField = task.querySelector('input.taskname')
         let taskname = inputField.value
         let [objectStore, request] = getTaskData(db, taskId)
 
+        inputField.disabled = true
         request.onsuccess = function (eve) {
             let requestUpdate = storeTaskData(eve, objectStore, 'name', taskname)
             requestUpdate.onerror = function() {
@@ -205,17 +204,17 @@ window.onload = function () {
             requestUpdate.onsuccess = function() {
                 console.log('Database successfully modified.')
                 modifyButton(task.querySelector('button.acceptNameEditBtn'), editTask, 'editBtn')
-                task.replaceChild(createMessage('taskname', taskname), inputField)
             }
         }
     }
 
     function acceptDescEdit (eve) {
         let [task, taskId] = getTaskInfo(eve)
-        let inputField = task.querySelector('input.inputDescEdit') // existing input
+        let inputField = task.querySelector('input.taskdesc')
         let taskdesc = inputField.value
         let [objectStore, request] = getTaskData(db, taskId)
 
+        inputField.disabled = true
         request.onsuccess = function (eve) {
             let requestUpdate = storeTaskData(eve, objectStore, 'description', taskdesc)
             requestUpdate.onerror = function() {
@@ -224,7 +223,6 @@ window.onload = function () {
             requestUpdate.onsuccess = function() {
                 console.log('Database successfully modified.')
                 modifyButton(task.querySelector('button.acceptDescEditBtn'), describeTask, 'describeBtn')
-                task.replaceChild(createMessage('taskdesc', taskdesc), inputField)
             }
         }
     }
