@@ -1,12 +1,15 @@
+@import url('https://www.fontify.me/wf/48f3e12c04a64dde546f078f61fa84bc');
+
 html {
     background-color: beige;
-    background: url('images/background.jpg') no-repeat fixed;
+    background: url('images/construction.jpg') no-repeat fixed;
     background-size: 100% 100%;
     font-size: 12px;
 }
 
 h1, h2, .emptymsg {
     text-align: center;
+    font-family: font89786;
 }
 
 form {
@@ -19,7 +22,7 @@ form {
 
 #inputTaskDescription {
     display: block;
-    width: 95%;
+    width: 90%;
 }
 
 .task, .taskToDo {
@@ -27,11 +30,21 @@ form {
 }
 
 .taskname {
-    display: inline;
+    display: inline-block;
+    width: 85%;
+}
+
+.taskdesc {
+    width: 85%;
+}
+
+.inputNameEdit {
+    width: 85%;
 }
 
 .inputDescEdit {
     display: block;
+    width: 85%;
 }
 
 #inputDivider, #completeDivider {
@@ -39,4 +52,43 @@ form {
     width: 80%;
     border-top: solid grey 1px;
     padding-top: 10px;
+}
+
+button {
+    padding: 10px;
+}
+
+#addtask {
+    background: url('images/add.png') no-repeat local;
+    background-size: 100% 100%;
+}
+
+.deleteBtn {
+    background: url('images/delete.png') no-repeat local;
+    background-size: 100% 100%;
+}
+
+.editBtn {
+    background: url('images/edit.png') no-repeat local;
+    background-size: 100% 100%;
+}
+
+.describeBtn {
+    background: url('images/describe.png') no-repeat local;
+    background-size: 100% 100%;
+}
+
+.completeBtn {
+    background: url('images/complete.png') no-repeat local;
+    background-size: 100% 100%;
+}
+
+.incompleteBtn {
+    background: url('images/incomplete.png') no-repeat local;
+    background-size: 100% 100%;
+}
+
+.acceptNameEditBtn, .acceptDescEditBtn {
+    background: url('images/apply-change.png') no-repeat local;
+    background-size: 100% 100%;
 }

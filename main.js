@@ -15,11 +15,14 @@ function createMessage (cls, message) { // creates a text message marked as give
     return msg
 }
 
-function createButton (label, onclickFunc, cls) { // creates a button marked as given class, with text label and linked onclick function
-    let button = document.createElement('button')
-    button.appendChild(document.createTextNode(label))
+function modifyButton (button, onclickFunc, cls) { // modifies a button's onclick and class properties
     button.onclick = onclickFunc
     button.className = cls
+}
+
+function createButton (onclickFunc, cls) { // creates a button marked as given class, with text label and linked onclick function
+    let button = document.createElement('button')
+    modifyButton(button, onclickFunc, cls)
     return button
 }
 
@@ -37,9 +40,10 @@ function getTaskInfo (eve) { // get associated task div and its id from triggeri
     return [task, taskId]
 }
 
-function checkAddEmptyMessage () { // check if no pending tasks and if so add message
-    if(document.querySelectorAll('div.taskToDo').length === 0) {
-        let msg = createMessage('emptymsg', 'Twiddling my thumbs, nothing to do.')
+function checkAddEmptyMessage () { // check if no pending tasks and no message if so add nothing to do message
+    let msg = document.querySelector('p.emptymsg')
+    if(document.querySelectorAll('div.taskToDo').length === 0 & msg === null) {
+        msg = createMessage('emptymsg', 'Twiddling my thumbs, nothing to do.')
         main.insertBefore(msg, completeDivider)
     }
 }    
@@ -102,22 +106,19 @@ window.onload = function () {
         let task = document.createElement("div")
         task.setAttribute('task-id', id)
         task.appendChild(createMessage('taskname', name))
-        task.appendChild(createButton('delete', deleteTask, 'deleteBtn'))
-        task.appendChild(createButton('edit', editTask, 'editBtn'))
-        task.appendChild(createButton('describe', describeTask, 'describeBtn'))
+        task.appendChild(createButton(deleteTask, 'deleteBtn'))
+        task.appendChild(createButton(editTask, 'editBtn'))
+        task.appendChild(createButton(describeTask, 'describeBtn'))
         if (completed) {
             task.className = "task"
-            task.appendChild(createButton('not completed', incompleteTask, 'incompleteBtn'))
-        } else {
-            task.className = "taskToDo"
-            task.appendChild(createButton('completed', completeTask, 'completeBtn'))
-        }
-        task.appendChild(createMessage('taskdesc', description))
-        if (completed) {
+            task.appendChild(createButton(incompleteTask, 'incompleteBtn'))
             main.insertBefore(task, null)
         } else {
+            task.className = "taskToDo"
+            task.appendChild(createButton(completeTask, 'completeBtn'))
             main.insertBefore(task, completeDivider)
-        } // clean this up
+        }
+        task.appendChild(createMessage('taskdesc', description))
     }
     
     function displayAllTasks () {
@@ -137,7 +138,13 @@ window.onload = function () {
 
     function addTask (eve) {
         eve.preventDefault()
-        let newTask = { name: nameInput.value, description: descriptionInput.value, completed: false }
+        let taskname = nameInput.value
+        let taskdesc = descriptionInput.value
+        if ( taskname === '') {
+            console.log('Please enter a task name')
+            return null
+        }
+        let newTask = { name: taskname, description: taskdesc, completed: false }
         let [transaction, objectStore] = openRWTransaction(db)
         var request = objectStore.add(newTask)
     
@@ -171,7 +178,7 @@ window.onload = function () {
     function editTask (eve) {
         let task = eve.target.parentNode
         let nameDisplay = task.querySelector('p.taskname') // existing display
-        task.replaceChild(createButton('accept changes', acceptNameEdit, 'acceptNameEditBtn'), task.querySelector('button.editBtn'))
+        modifyButton(task.querySelector('button.editBtn'), acceptNameEdit, 'acceptNameEditBtn')
         let input = createInputField('inputNameEdit', nameDisplay.innerHTML)
         task.replaceChild(input, nameDisplay) // change name text field to an input field with same value
     }
@@ -179,7 +186,7 @@ window.onload = function () {
     function describeTask (eve) {
         let task = eve.target.parentNode
         let descDisplay = task.querySelector('p.taskdesc') // existing display
-        task.replaceChild(createButton('accept changes', acceptDescEdit, 'acceptDescEditBtn'), task.querySelector('button.describeBtn'))
+        modifyButton(task.querySelector('button.describeBtn'), acceptDescEdit, 'acceptDescEditBtn')
         let input = createInputField('inputDescEdit', descDisplay.innerHTML)
         task.replaceChild(input, descDisplay) // change name text field to an input field with same value
     }
@@ -197,7 +204,7 @@ window.onload = function () {
             }
             requestUpdate.onsuccess = function() {
                 console.log('Database successfully modified.')
-                task.replaceChild(createButton('edit', editTask, 'editBtn'), task.querySelector('button.acceptNameEditBtn'))
+                modifyButton(task.querySelector('button.acceptNameEditBtn'), editTask, 'editBtn')
                 task.replaceChild(createMessage('taskname', taskname), inputField)
             }
         }
@@ -216,7 +223,7 @@ window.onload = function () {
             }
             requestUpdate.onsuccess = function() {
                 console.log('Database successfully modified.')
-                task.replaceChild(createButton('describe', describeTask, 'describeBtn'), task.querySelector('button.acceptDescEditBtn'))
+                modifyButton(task.querySelector('button.acceptDescEditBtn'), describeTask, 'describeBtn')
                 task.replaceChild(createMessage('taskdesc', taskdesc), inputField)
             }
         }
@@ -235,13 +242,13 @@ window.onload = function () {
                 console.log('Database successfully modified.')
                 if (completed) {
                     task.className = "task"
-                    task.replaceChild(createButton('not completed', incompleteTask, 'incompleteBtn'), task.querySelector('button.completeBtn')) // change to incomplete button
+                    modifyButton(task.querySelector('button.completeBtn'), incompleteTask, 'incompleteBtn')
                     main.insertBefore(task, null)
                     checkAddEmptyMessage()
                 } else {
                     checkDelEmptyMessage()
                     task.className = "taskToDo"
-                    task.replaceChild(createButton('completed', completeTask, 'completeBtn'), task.querySelector('button.incompleteBtn')) // change to complete button
+                    modifyButton(task.querySelector('button.incompleteBtn'), completeTask, 'completeBtn')
                     main.insertBefore(task, completeDivider)
                 }
             }
