@@ -15,14 +15,15 @@ function createMessage (cls, message) { // creates a text message marked as give
     return msg
 }
 
-function modifyButton (button, onclickFunc, cls) { // modifies a button's onclick and class properties
+function modifyButton (button, tooltip, onclickFunc, cls) { // modifies a button's onclick and class properties
+    button.title = tooltip
     button.onclick = onclickFunc
     button.className = cls
 }
 
-function createButton (onclickFunc, cls) { // creates a button marked as given class, with text label and linked onclick function
+function createButton (title, onclickFunc, cls) { // creates a button marked as given class, with text label and linked onclick function
     let button = document.createElement('button')
-    modifyButton(button, onclickFunc, cls)
+    modifyButton(button, title, onclickFunc, cls)
     return button
 }
 
@@ -108,16 +109,16 @@ window.onload = function () {
         task.setAttribute('task-id', id)
         task.appendChild(createInputField('taskname', name))
         task.appendChild(createInputField('taskdesc', description))
-        task.appendChild(createButton(deleteTask, 'deleteBtn'))
-        task.appendChild(createButton(editTask, 'editBtn'))
-        task.appendChild(createButton(describeTask, 'describeBtn'))
+        task.appendChild(createButton('Delete Task', deleteTask, 'deleteBtn'))
+        task.appendChild(createButton('Edit Task', editTask, 'editBtn'))
+        task.appendChild(createButton('Edit Description', describeTask, 'describeBtn'))
         if (completed) {
             task.className = "task"
-            task.appendChild(createButton(incompleteTask, 'incompleteBtn'))
+            task.appendChild(createButton('Set Task to Incomplete', incompleteTask, 'incompleteBtn'))
             main.insertBefore(task, null)
         } else {
             task.className = "taskToDo"
-            task.appendChild(createButton(completeTask, 'completeBtn'))
+            task.appendChild(createButton('Task Completed', completeTask, 'completeBtn'))
             main.insertBefore(task, completeDivider)
         }
     }
@@ -180,13 +181,13 @@ window.onload = function () {
     function editTask (eve) {
         let task = eve.target.parentNode
         task.querySelector('input.taskname').disabled = false
-        modifyButton(task.querySelector('button.editBtn'), acceptNameEdit, 'acceptNameEditBtn')
+        modifyButton(task.querySelector('button.editBtn'), 'Save Changes', acceptNameEdit, 'acceptNameEditBtn')
     }
 
     function describeTask (eve) {
         let task = eve.target.parentNode
         task.querySelector('input.taskdesc').disabled = false
-        modifyButton(task.querySelector('button.describeBtn'), acceptDescEdit, 'acceptDescEditBtn')
+        modifyButton(task.querySelector('button.describeBtn'), 'Save Changes', acceptDescEdit, 'acceptDescEditBtn')
     }
 
     function acceptNameEdit (eve) {
@@ -203,7 +204,7 @@ window.onload = function () {
             }
             requestUpdate.onsuccess = function() {
                 console.log('Database successfully modified.')
-                modifyButton(task.querySelector('button.acceptNameEditBtn'), editTask, 'editBtn')
+                modifyButton(task.querySelector('button.acceptNameEditBtn'), 'Edit Task', editTask, 'editBtn')
             }
         }
     }
@@ -222,7 +223,7 @@ window.onload = function () {
             }
             requestUpdate.onsuccess = function() {
                 console.log('Database successfully modified.')
-                modifyButton(task.querySelector('button.acceptDescEditBtn'), describeTask, 'describeBtn')
+                modifyButton(task.querySelector('button.acceptDescEditBtn'), 'Edit Description', describeTask, 'describeBtn')
             }
         }
     }
@@ -240,13 +241,13 @@ window.onload = function () {
                 console.log('Database successfully modified.')
                 if (completed) {
                     task.className = "task"
-                    modifyButton(task.querySelector('button.completeBtn'), incompleteTask, 'incompleteBtn')
+                    modifyButton(task.querySelector('button.completeBtn'), 'Set Task to Complete', incompleteTask, 'incompleteBtn')
                     main.insertBefore(task, null)
                     checkAddEmptyMessage()
                 } else {
                     checkDelEmptyMessage()
                     task.className = "taskToDo"
-                    modifyButton(task.querySelector('button.incompleteBtn'), completeTask, 'completeBtn')
+                    modifyButton(task.querySelector('button.incompleteBtn'), 'Task Completed', completeTask, 'completeBtn')
                     main.insertBefore(task, completeDivider)
                 }
             }

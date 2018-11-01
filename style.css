@@ -58,7 +58,9 @@ form {
 }
 
 .taskname, .taskdesc {
-    background-color: beige;
+    background-color: rgba(245, 245, 220, 0.8);
+    border: none;
+    color: grey;
     width: 99.5%;
     min-width: 75px;
     padding: 5px 0px 5px 5px;
@@ -74,6 +76,10 @@ form {
     font-size: 1rem;
     margin: 0px;
     grid-area: 3 / 1 / 4 / 2;
+}
+
+input[disabled] {
+    color: black;
 }
 
 #inputDivider, #completeDivider {
