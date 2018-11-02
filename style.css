@@ -92,6 +92,7 @@ button:hover {
     background: url('images/add.png') no-repeat local;
     background-size: 100% 100%;
     padding: 11px;
+    border-radius: 5px;
     display: table-cell;
     vertical-align: middle;
     margin: 0px 0px 5px 0px;
