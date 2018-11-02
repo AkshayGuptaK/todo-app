@@ -84,20 +84,6 @@ input[disabled] {
     color: black;
 }
 
-#inputDivider, #completeDivider {
-    margin: auto;
-    width: 80%;
-    padding-top: 10px;
-}
-
-#inputDivider {
-    border-top: solid blue 1px;
-}
-
-#completeDivider {
-    border-bottom: solid blue 1px;
-}
-
 button:hover {
     background-color: lightblue;
 }
@@ -152,4 +138,18 @@ button:hover {
 
 .acceptDescEditBtn {
     grid-area: 2 / 2 / 4 / 3;
+}
+
+#inputDivider, #completeDivider {
+    margin: auto;
+    width: 80%;
+    padding-top: 10px;
+}
+
+#inputDivider {
+    border-top: solid blue 1px;
+}
+
+#completeDivider {
+    border-bottom: solid blue 1px;
 }

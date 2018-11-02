@@ -175,7 +175,7 @@ window.onload = function () { // attempt to open the db
     
         transaction.oncomplete = function() {
             main.removeChild(eve.target.parentNode)
-            console.log('Task ' + taskId + ' deleted')      
+            console.log('Task ' + taskId + ' deleted')
             checkAddEmptyMessage()
         }
     }
