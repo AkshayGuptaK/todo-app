@@ -194,6 +194,10 @@ window.onload = function () {
         let [task, taskId] = getTaskInfo(eve)
         let inputField = task.querySelector('input.taskname')
         let taskname = inputField.value
+        if ( taskname === '') {
+            console.log('Please enter a task name')
+            return null
+        }
         let [objectStore, request] = getTaskData(db, taskId)
 
         inputField.disabled = true

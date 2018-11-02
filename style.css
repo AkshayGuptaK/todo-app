@@ -30,21 +30,22 @@ form {
     width: 100%;
 }
 
-#inputTaskName {
+#inputTaskName, #inputTaskDescription {
     display: table-cell;
     vertical-align: middle;
-    font-size: 1.5rem;
     width: 95%;
+    min-width: 100px;
     background-color: beige;
+    border-radius: 5px;
+}
+
+#inputTaskName {
+    font-size: 1.5rem;
     margin: 0px 5px 5px 0px;
 }
 
 #inputTaskDescription {
     font-size: 1rem;
-    vertical-align: middle;
-    display: table-cell;
-    width: 95%;
-    background-color: beige;
     margin-right: 5px;
 }
 
@@ -60,6 +61,7 @@ form {
 .taskname, .taskdesc {
     background-color: rgba(245, 245, 220, 0.8);
     border: none;
+    border-radius: 5px;
     color: grey;
     width: 99.5%;
     min-width: 75px;
@@ -89,11 +91,15 @@ input[disabled] {
 }
 
 #inputDivider {
-    border-top: solid grey 1px;
+    border-top: solid lightgray 1px;
 }
 
 #completeDivider {
-    border-bottom: solid grey 1px;
+    border-bottom: solid lightgray 1px;
+}
+
+button:hover {
+    background-color: lightgrey;
 }
 
 #addtask {
