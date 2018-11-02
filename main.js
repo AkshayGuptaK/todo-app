@@ -82,10 +82,10 @@ function storeTaskData (eve, objectStore, field, value) { // updates task data w
 
 let db // declared outside window.onload so it is not found to be undefined
 
-window.onload = function () {
-    let request = window.indexedDB.open('tasks', 1)
+window.onload = function () { // attempt to open the db
+    let request = window.indexedDB.open('tasks', 1) // db named tasks, version 1
     request.onerror = function () {
-        console.log('Database failed to load')
+        alert('Database failed to load')
     }
     request.onsuccess = function () {
         console.log('Database successfully loaded')
@@ -93,18 +93,17 @@ window.onload = function () {
         displayAllTasks()
     }
 
-    request.onupgradeneeded = function(eve) {
+    request.onupgradeneeded = function(eve) { // fires if db doesn't exist or is outdated version
         let db = eve.target.result
         let objectStore = db.createObjectStore('tasks', { keyPath: 'id', autoIncrement:true })
         objectStore.createIndex('name', 'name', { unique: false })
         objectStore.createIndex('description', 'description', { unique: false })
         objectStore.createIndex('completed', 'completed', { unique: false })
   
-        console.log('Database setup complete') 
+        console.log('Database setup complete')
     }
 
-    // Adds a task to the display given its parameters
-    function displayTask (name, description, completed, id) {
+    function displayTask (name, description, completed, id) { // adds a task to the display given its parameters
         let task = document.createElement("div")
         task.setAttribute('task-id', id)
         task.appendChild(createInputField('taskname', name))
@@ -123,8 +122,8 @@ window.onload = function () {
         }
     }
     
-    function displayAllTasks () {
-        let objectStore = db.transaction('tasks').objectStore('tasks')
+    function displayAllTasks () { // display all tasks in the object store
+        let objectStore = db.transaction(['tasks'], 'readonly').objectStore('tasks')
         let request = objectStore.openCursor()
         
         request.onsuccess = function (eve) {
@@ -139,12 +138,12 @@ window.onload = function () {
         }
     }
 
-    function addTask (eve) {
+    function addTask (eve) { // add a task to the db and display it
         eve.preventDefault()
         let taskname = nameInput.value
         let taskdesc = descriptionInput.value
         if ( taskname === '') {
-            console.log('Please enter a task name')
+            alert('Please enter a task name')
             return null
         }
         let newTask = { name: taskname, description: taskdesc, completed: false }
@@ -160,13 +159,13 @@ window.onload = function () {
         }
         
         transaction.onerror = function() {
-            console.log('Database modification failed.')
+            alert('Database modification failed.')
         }
     }
 
     form.onsubmit = addTask // set this addTask function as the callback action of form submission
 
-    function deleteTask (eve) {
+    function deleteTask (eve) { // delete a task from db and remove it from display
         let taskId = getTaskInfo(eve)[1]
         let [transaction, objectStore] = openRWTransaction(db)
         let request = objectStore.delete(taskId)
@@ -178,24 +177,24 @@ window.onload = function () {
         }
     }
     
-    function editTask (eve) {
+    function editTask (eve) { // enable editing of a task name
         let task = eve.target.parentNode
         task.querySelector('input.taskname').disabled = false
         modifyButton(task.querySelector('button.editBtn'), 'Save Changes', acceptNameEdit, 'acceptNameEditBtn')
     }
 
-    function describeTask (eve) {
+    function describeTask (eve) { // enable editing of a task description
         let task = eve.target.parentNode
         task.querySelector('input.taskdesc').disabled = false
         modifyButton(task.querySelector('button.describeBtn'), 'Save Changes', acceptDescEdit, 'acceptDescEditBtn')
     }
 
-    function acceptNameEdit (eve) {
+    function acceptNameEdit (eve) { // save changes to a task name edit
         let [task, taskId] = getTaskInfo(eve)
         let inputField = task.querySelector('input.taskname')
         let taskname = inputField.value
         if ( taskname === '') {
-            console.log('Please enter a task name')
+            alert('Please enter a task name')
             return null
         }
         let [objectStore, request] = getTaskData(db, taskId)
@@ -204,7 +203,7 @@ window.onload = function () {
         request.onsuccess = function (eve) {
             let requestUpdate = storeTaskData(eve, objectStore, 'name', taskname)
             requestUpdate.onerror = function() {
-                console.log('Database modification failed.')
+                alert('Database modification failed.')
             }
             requestUpdate.onsuccess = function() {
                 console.log('Database successfully modified.')
@@ -213,7 +212,7 @@ window.onload = function () {
         }
     }
 
-    function acceptDescEdit (eve) {
+    function acceptDescEdit (eve) { // save changes to a task description edit
         let [task, taskId] = getTaskInfo(eve)
         let inputField = task.querySelector('input.taskdesc')
         let taskdesc = inputField.value
@@ -223,7 +222,7 @@ window.onload = function () {
         request.onsuccess = function (eve) {
             let requestUpdate = storeTaskData(eve, objectStore, 'description', taskdesc)
             requestUpdate.onerror = function() {
-                console.log('Database modification failed.')
+                alert('Database modification failed.')
             }
             requestUpdate.onsuccess = function() {
                 console.log('Database successfully modified.')
@@ -232,14 +231,14 @@ window.onload = function () {
         }
     }
 
-    function setCompleted (eve, completed) {
+    function setCompleted (eve, completed) { // set completion level of task, update in db, and modify display accordingly
         let [task, taskId] = getTaskInfo(eve)
         let [objectStore, request] = getTaskData(db, taskId)
 
         request.onsuccess = function (eve) {
             let requestUpdate = storeTaskData(eve, objectStore, 'completed', completed)
             requestUpdate.onerror = function() {
-                console.log('Database modification failed.')
+                alert('Database modification failed.')
             }
             requestUpdate.onsuccess = function() {
                 console.log('Database successfully modified.')

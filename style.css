@@ -91,15 +91,15 @@ input[disabled] {
 }
 
 #inputDivider {
-    border-top: solid lightgray 1px;
+    border-top: solid blue 1px;
 }
 
 #completeDivider {
-    border-bottom: solid lightgray 1px;
+    border-bottom: solid blue 1px;
 }
 
 button:hover {
-    background-color: lightgrey;
+    background-color: lightblue;
 }
 
 #addtask {
