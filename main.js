@@ -80,10 +80,13 @@ function storeTaskData (eve, objectStore, field, value) { // updates task data w
 
 // Main code
 
-let db // declared outside window.onload so it is not found to be undefined
+let db
 
 window.onload = function () { // attempt to open the db
     let request = window.indexedDB.open('tasks', 1) // db named tasks, version 1
+    request.onblocked = function () {
+        alert('Please close other instances of this site first')
+    }
     request.onerror = function () {
         alert('Database failed to load')
     }
@@ -155,7 +158,7 @@ window.onload = function () { // attempt to open the db
             descriptionInput.value = ''
             console.log('Database successfully modified.')
             checkDelEmptyMessage()
-            displayTask(newTask.name, newTask.description, false, request.result) // request.result contains new task id value
+            displayTask(newTask.name, newTask.description, false, request.result) // request.result is new task id value
         }
         
         transaction.onerror = function() {
