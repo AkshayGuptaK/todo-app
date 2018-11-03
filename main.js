@@ -48,7 +48,7 @@ function checkAddEmptyMessage () { // check if no pending tasks and no message i
         msg = createMessage('emptymsg', 'Twiddling my thumbs, nothing to do.')
         main.insertBefore(msg, completeDivider)
     }
-}    
+}
 
 function checkDelEmptyMessage () { // if empty message exists, remove it
     let msg = document.querySelector('p.emptymsg')
@@ -119,7 +119,7 @@ function addTask (eve) { // add a task to the db and display it
     eve.preventDefault()
     let taskname = nameInput.value
     let taskdesc = descriptionInput.value
-    if ( taskname === '') {
+    if ( !/\S+/.test(taskname) ) {
         alert('Please enter a task name')
         return null
     }
@@ -129,7 +129,7 @@ function addTask (eve) { // add a task to the db and display it
 
     transaction.onerror = function() {
         alert('Database modification failed.')
-    }    
+    }
     transaction.oncomplete = function() {
         nameInput.value = ''
         descriptionInput.value = ''
@@ -167,7 +167,7 @@ function acceptNameEdit (eve) { // save changes to a task name edit
     let [task, taskId] = getTaskInfo(eve)
     let inputField = task.querySelector('input.taskname')
     let taskname = inputField.value
-    if ( taskname === '') {
+    if ( !/\S+/.test(taskname) ) {
         alert('Please enter a task name')
         return null
     }
