@@ -93,8 +93,7 @@ function getTaskData (db, taskId) { // retrieves data corresponding to task id
 function storeTaskData (eve, objectStore, field, value) { // updates task data with one value alteration
     let data = eve.target.result
     data[field] = value
-    let request = objectStore.put(data)
-    return request
+    return objectStore.put(data)
 }
 
 // Main code
@@ -261,5 +260,5 @@ window.onload = function () { // attempt to open the db
   
         console.log('Database setup complete')
     }
-    form.onsubmit = addTask // set this addTask function as the callback action of form submission
+    form.onsubmit = addTask // sets addTask function as the callback action of form submission
 }
